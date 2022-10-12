@@ -27,14 +27,16 @@ class PatentReader(BaseReader):
         with open(path,'r',encoding='utf8') as file:
             lines = file.readlines()
         shuffle(lines)
-        divide = int(split * len(lines))
+        my_split = 0.9 if split is None else split
+        divide = int(my_split * len(lines))
         train_lines = lines[:divide]
         dev_lines = lines[divide:]
         train_datable = DataTable()
         dev_datable = DataTable()
 
-        # for line in train_lines:
-        for line in lines:
+        if split is None:
+            train_lines = lines
+        for line in train_lines:
             dict_data = json.loads(line)
             for key in ["id","title","assignee","abstract"]:
                 train_datable(key,dict_data[key])

@@ -5,23 +5,22 @@ import torch.random
 from cogtemplate import *
 from cogtemplate.data.readers.patent_reader import PatentReader
 from cogtemplate.data.processors.patent_processors.patent_base_processor import PatentForBertProcessor
-
+from cogtemplate.core.predictor import Predictor
 
 device, output_path = init_cogtemplate(
     device_id=9,
     # seed=66, # 0.506
     # seed=55,
-    output_path="/data/hongbang/CogAGENT/datapath/text_classification/patent/experimental_result",
+    output_path="/data/hongbang/projects/PatentClassification/datapath/text_classification/patent/experimental_result",
     folder_tag="simple_test",
 )
 
-reader = PatentReader(raw_data_path="/data/hongbang/CogAGENT/datapath/text_classification/patent/raw_data")
+reader = PatentReader(raw_data_path="/data/hongbang/projects/PatentClassification/datapath/text_classification/patent/raw_data")
 # train_data = reader._read_train()
-train_data, dev_data ,test_data = reader.read_all()
+train_data, dev_data ,test_data = reader.read_all(split=0.9)
 vocab = reader.read_vocab()
-# "hfl/chinese-bert-wwm"
-# "bert-base-chinese"
-# "hfl/chinese-pert-base"
+# plm_name = "hfl/chinese-bert-wwm"
+# plm_name = "bert-base-chinese"
 # plm_name = "hfl/chinese-pert-base"
 plm_name = 'hfl/chinese-roberta-wwm-ext'
 processor = PatentForBertProcessor(plm=plm_name, max_token_len=512, vocab=vocab)
@@ -66,4 +65,25 @@ trainer = Trainer(model,
                   fp16=False,
                   fp16_opt_level='O1',
                   )
+trainer.train()
+test_dataset = processor.process_test(test_data)
+predictor = Predictor(
+    model=model,
+    checkpoint_path = None,
+    dev_data=test_dataset,
+    device=device,
+    vocab=vocab,
+    batch_size=64,
+)
+
+result = predictor.predict()
+from itertools import zip_longest
+export_data = zip_longest(*result[::-1], fillvalue = '')
+import csv
+with open("/data/hongbang/submission.csv","w") as f:
+    writer = csv.writer(f)
+    writer.writerow(("id","label"))
+    writer.writerows(export_data)
+print("Done")
+
 trainer.train()

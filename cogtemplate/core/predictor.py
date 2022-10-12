@@ -51,12 +51,14 @@ class Predictor:
         self.dev_dataloader = DataLoader(dataset=self.dev_data, batch_size=self.batch_size,
                                          sampler=self.sampler, drop_last=self.drop_last,
                                          collate_fn=self.collate_fn)
-
-        model_file = os.path.abspath(os.path.join(self.checkpoint_path, file_name))
-        if os.path.isfile(model_file):
-            self.model = load_model(self.model, model_file)
+        if checkpoint_path:
+            model_file = os.path.abspath(os.path.join(self.checkpoint_path, file_name))
+            if os.path.isfile(model_file):
+                self.model = load_model(self.model, model_file)
+            else:
+                raise ValueError("Pretrained model file {} does not exist!".format(model_file))
         else:
-            raise ValueError("Pretrained model file {} does not exist!".format(model_file))
+            logger.info("No checkpoint path specified. Use the original model weights.")
 
         self.model.to(self.device)
 
