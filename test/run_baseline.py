@@ -19,6 +19,8 @@ reader = PatentReader(raw_data_path="/data/hongbang/projects/PatentClassificatio
 # train_data = reader._read_train()
 train_data, dev_data ,test_data = reader.read_all(split=0.9)
 vocab = reader.read_vocab()
+
+# choose one plm model
 # plm_name = "hfl/chinese-bert-wwm"
 # plm_name = "bert-base-chinese"
 # plm_name = "hfl/chinese-pert-base"
@@ -69,7 +71,7 @@ trainer.train()
 test_dataset = processor.process_test(test_data)
 predictor = Predictor(
     model=model,
-    checkpoint_path = None,
+    checkpoint_path = None, # or you can choose the best model in outputdir
     dev_data=test_dataset,
     device=device,
     vocab=vocab,
