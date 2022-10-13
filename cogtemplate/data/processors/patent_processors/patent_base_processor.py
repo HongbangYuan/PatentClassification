@@ -16,14 +16,20 @@ class PatentForBertProcessor(BaseProcessor):
         self.vocab = vocab
         self.tokenizer = BertTokenizer.from_pretrained(plm)
 
-    def _process(self, data):
+    def _process(self, data,is_training=True):
         datable = DataTable()
         data = self.debug_process(data)
         print("Processing data...")
-        for sentence,title, label,id in tqdm(zip(data['abstract'],data['title'], data['label'],data['id']), total=len(data['abstract'])):
-            title = process_title(title)
-            tokenized_data = self.tokenizer.encode_plus(text=title,
-                                                        text_pair=sentence,
+        pbar = tqdm(zip(data['abstract'],data['title'], data['label'],data['id']),total=len(data["title"])) \
+            if is_training else tqdm(zip(data['abstract'],data['title'], data['id']),total=len(data["title"]))
+        for sample in pbar:
+            # title = process_title(title)
+            if is_training:
+                sentence, title, label, id = sample
+            else:
+                sentence,title,id = sample
+            tokenized_data = self.tokenizer.encode_plus(text=title + sentence,
+                                                        # text_pair=sentence,
                                                         padding="max_length",
                                                         truncation=True,
                                                         add_special_tokens=True,
@@ -32,7 +38,8 @@ class PatentForBertProcessor(BaseProcessor):
             datable("token_type_ids", tokenized_data["token_type_ids"])
             datable("attention_mask", tokenized_data["attention_mask"])
             datable("id",id)
-            datable("label", self.vocab["label_vocab"].label2id(label))
+            if is_training:
+                datable("label", self.vocab["label_vocab"].label2id(label))
         datable.not2torch.add("id")
         return DataTableSet(datable)
 
@@ -43,31 +50,7 @@ class PatentForBertProcessor(BaseProcessor):
         return self._process(data)
 
     def process_test(self, data):
-        datable = DataTable()
-        data = self.debug_process(data)
-        print("Processing data...")
-        for sentence,title,id in tqdm(zip(data['abstract'],data['title'],data['id']), total=len(data['abstract'])):
-            title = process_title(title)
-            tokenized_data = self.tokenizer.encode_plus(text=title,
-                                                        text_pair=sentence,
-                                                        padding="max_length",
-                                                        truncation=True,
-                                                        add_special_tokens=True,
-                                                        max_length=self.max_token_len)
-            datable("input_ids", tokenized_data["input_ids"])
-            datable("token_type_ids", tokenized_data["token_type_ids"])
-            datable("attention_mask", tokenized_data["attention_mask"])
-            datable("id",id)
-        datable.not2torch.add("id")
-        return DataTableSet(datable)
-
-def text_classification_for_sst2(sentence,tokenizer,max_token_len):
-    tokenized_data = tokenizer.encode_plus(text=sentence,
-                                            padding="max_length",
-                                            truncation=True,
-                                            add_special_tokens=True,
-                                            max_length=max_token_len)
-    return tokenized_data.data
+        return self._process(data,is_training=False)
 
 def process_title(title):
     for word in ['一种','一种','装置','设备']:
