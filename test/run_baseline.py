@@ -41,7 +41,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.00001)
 trainer = Trainer(model,
                   dev_data=dev_dataset,
                   train_data=train_dataset,
-                  n_epochs=30,
+                  n_epochs=32,
                   # n_epochs=17,
                   batch_size=32,
                   loss=loss,
