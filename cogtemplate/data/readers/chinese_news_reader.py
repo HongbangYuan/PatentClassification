@@ -25,25 +25,26 @@ class ChieseNewsReader(BaseReader):
         self.vocab_list = []
         self.vocab_counter = Counter()
 
-    def _read(self, path=None):
+    def _read(self, path=None,isTraining=True):
         print("Reading data...")
         datable = DataTable()
         with open(path) as file:
             lines = file.readlines()
-        for line in tqdm(lines[:1000]):
+        cut = 10 * 10000 if isTraining else 10000
+        for line in tqdm(lines[:cut]):
             words = list(line.strip())
             datable("words",["<go>"]+words)
             self.vocab_counter += Counter(words)
         return datable
 
     def _read_train(self, path=None):
-        return self._read(path)
+        return self._read(path,isTraining=True)
 
     def _read_dev(self, path=None):
-        return self._read(path)
+        return self._read(path,isTraining=False)
 
     def _read_test(self, path=None):
-        return self._read(path)
+        return self._read(path,isTraining=False)
 
     def read_all(self):
         return self._read_train(self.train_path), self._read_dev(self.dev_path), self._read_test(self.test_path)

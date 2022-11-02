@@ -4,7 +4,8 @@ from transformers import BertTokenizer
 from tqdm import tqdm
 import transformers
 from cogtemplate.data.processors.base_processor import BaseProcessor
-
+from torch import Tensor
+import torch
 transformers.logging.set_verbosity_error()  # set transformers logging level
 
 
@@ -30,9 +31,13 @@ class ChineseNewsForLMProcessor(BaseProcessor):
             word_length = len(word_ids)
             word_ids += [self.pad_id] * (self.max_token_len  - word_length)
             label_ids += [self.pad_id] * (self.max_token_len  - word_length)
+            key_padding_mask = [not (id == self.pad_id) for id in word_ids]
+            src_mask = generate_square_subsequent_mask(self.max_token_len).tolist()
             datable("word_ids",word_ids)
             datable("label_ids",label_ids)
             datable("word_length",word_length)
+            datable("key_padding_mask",key_padding_mask)
+            datable("src_mask",src_mask)
         return DataTableSet(datable)
 
     def process_train(self, data):
@@ -44,6 +49,13 @@ class ChineseNewsForLMProcessor(BaseProcessor):
     def process_test(self, data):
         return self._process(data)
 
+def generate_square_subsequent_mask(sz: int) -> Tensor:
+    r"""Generate a square mask for the sequence. The masked positions are filled with float('-inf').
+        Unmasked positions are filled with float(0.0).
+    """
+    mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+    mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+    return mask
 
 if __name__ == "__main__":
 
@@ -52,7 +64,7 @@ if __name__ == "__main__":
 
     train_data, dev_data, test_data, vocab = load_pickle(cache_file)
 
-    processor = ChineseNewsForLMProcessor( max_token_len=128, vocab=vocab,debug=True)
+    processor = ChineseNewsForLMProcessor( max_token_len=128, vocab=vocab,debug=False)
     train_dataset = processor.process_train(train_data)
     dev_dataset = processor.process_dev(dev_data)
     test_dataset = processor.process_test(test_data)
