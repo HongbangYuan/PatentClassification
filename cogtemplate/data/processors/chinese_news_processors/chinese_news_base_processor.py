@@ -64,9 +64,9 @@ if __name__ == "__main__":
 
     train_data, dev_data, test_data, vocab = load_pickle(cache_file)
 
-    processor = ChineseNewsForLMProcessor( max_token_len=128, vocab=vocab,debug=False)
+    processor = ChineseNewsForLMProcessor( max_token_len=128, vocab=vocab,debug=True)
     train_dataset = processor.process_train(train_data)
     dev_dataset = processor.process_dev(dev_data)
     test_dataset = processor.process_test(test_data)
-    save_pickle([train_dataset, dev_dataset, test_dataset, vocab],"/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/cache/processor_datas.pkl")
+    save_pickle([train_dataset, dev_dataset, test_dataset, vocab],"/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/cache/processor_datas_debug.pkl")
     print("end")

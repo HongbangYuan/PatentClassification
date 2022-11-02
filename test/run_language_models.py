@@ -1,5 +1,5 @@
 from cogtemplate import *
-from cogtemplate.models.base_language_model import TransformerForLM,TransformerModel
+from cogtemplate.models.base_language_model import TransformerForLM,TransformerModel,GRUForLM
 from cogtemplate.core.metric.base_lm_metric import BaseLanguageModelMetric
 import torch.nn as nn
 import torch.optim as optim
@@ -9,18 +9,23 @@ train_dataset, dev_dataset, test_dataset,vocab = load_pickle(cache_file)
 
 device, output_path = init_cogtemplate(
     device_id=7,
-    output_path="/data/hongbang/CogAGENT/datapath/language_models/chinese_news/experimental_result",
-    folder_tag="run_transformer_lm",
+    output_path="/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/experimental_result",
+    folder_tag="run_lstm_lm",
 )
 
+
+# ntokens = len(vocab["word_vocab"])  # size of vocabulary
+# emsize = 200  # embedding dimension
+# d_hid = 200  # dimension of the feedforward network model in nn.TransformerEncoder
+# nlayers = 2  # number of nn.TransformerEncoderLayer in nn.TransformerEncoder
+# nhead = 2  # number of heads in nn.MultiheadAttention
+# dropout = 0.2  # dropout probability
+# model = TransformerForLM(ntokens, emsize, nhead, d_hid, nlayers, dropout)
 
 ntokens = len(vocab["word_vocab"])  # size of vocabulary
 emsize = 200  # embedding dimension
 d_hid = 200  # dimension of the feedforward network model in nn.TransformerEncoder
-nlayers = 2  # number of nn.TransformerEncoderLayer in nn.TransformerEncoder
-nhead = 2  # number of heads in nn.MultiheadAttention
-dropout = 0.2  # dropout probability
-model = TransformerForLM(ntokens, emsize, nhead, d_hid, nlayers, dropout)
+model = GRUForLM(n_token=ntokens,embedding_dim=emsize,hidden_size=d_hid)
 
 loss = nn.CrossEntropyLoss(ignore_index=0) # ignore_index = pad_id
 metric= BaseLanguageModelMetric()
