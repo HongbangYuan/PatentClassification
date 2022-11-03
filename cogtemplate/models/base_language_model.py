@@ -4,6 +4,38 @@ import torch.nn.functional as F
 import torch
 from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 
+class FullyConnectedForLM(BaseModel):
+    def __init__(self,n_token,embedding_dim,length,hidden_size):
+        super(FullyConnectedForLM, self).__init__()
+        self.embedding = nn.Embedding(n_token, embedding_dim)
+        self.encode = nn.Linear(embedding_dim * length,hidden_size)
+        self.decode = nn.Linear(hidden_size,length * n_token)
+        self.length = length
+        self.vocab_size = n_token
+
+
+    def forward(self, batch):
+        word_ids,word_length = batch["word_ids"],batch["word_length"]
+        batch_size = word_length.shape[0]
+        word_ids_embedding = self.embedding(word_ids)
+        hidden = self.encode(word_ids_embedding.reshape(batch_size,-1))
+        logits = self.decode(hidden)
+        return logits.reshape(batch_size,self.length,-1)
+
+    def loss(self, batch, loss_function):
+        logits = self.forward(batch)
+        label_ids = batch["label_ids"]
+        loss = loss_function(logits.reshape(-1, self.vocab_size), label_ids.reshape(-1))
+        return loss
+
+    def evaluate(self, batch, metric_function):
+        label_ids = batch["label_ids"]
+        logits = self.forward(batch)
+        metric_function.evaluate(logits.reshape(-1, self.vocab_size), label_ids.reshape(-1))
+
+    def predict(self, batch):
+        pass
+
 class GRUForLM(BaseModel):
     def __init__(self,n_token,embedding_dim,hidden_size):
         super(GRUForLM, self).__init__()
