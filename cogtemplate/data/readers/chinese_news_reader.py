@@ -30,7 +30,8 @@ class ChieseNewsReader(BaseReader):
         datable = DataTable()
         with open(path) as file:
             lines = file.readlines()
-        cut = 10 * 10000 if isTraining else 10000
+        num = 5000
+        cut = 10 * num if isTraining else num
         for line in tqdm(lines[:cut]):
             words = list(line.strip())
             datable("words",["<go>"]+words)

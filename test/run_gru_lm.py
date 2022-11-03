@@ -11,35 +11,24 @@ device, output_path = init_cogtemplate(
     device_id=6,
     output_path="/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/experimental_result",
     # folder_tag="run_lstm_lm",
-    # folder_tag="run_transformer_lm_lr4e-3"
-    folder_tag="run_transformer_lm_lr5e-4"
-    # folder_tag="debug_gru",
+    folder_tag="run_gru_lm_lr_4e-e3"
 )
 
 
 ntokens = len(vocab["word_vocab"])  # size of vocabulary
 emsize = 200  # embedding dimension
 d_hid = 200  # dimension of the feedforward network model in nn.TransformerEncoder
-nlayers = 2  # number of nn.TransformerEncoderLayer in nn.TransformerEncoder
-nhead = 2  # number of heads in nn.MultiheadAttention
-dropout = 0.2  # dropout probability
-model = TransformerForLM(ntokens, emsize, nhead, d_hid, nlayers, dropout)
-
-# ntokens = len(vocab["word_vocab"])  # size of vocabulary
-# emsize = 200  # embedding dimension
-# d_hid = 200  # dimension of the feedforward network model in nn.TransformerEncoder
-# model = GRUForLM(n_token=ntokens,embedding_dim=emsize,hidden_size=d_hid)
+model = GRUForLM(n_token=ntokens,embedding_dim=emsize,hidden_size=d_hid)
 
 loss = nn.CrossEntropyLoss(ignore_index=0) # ignore_index = pad_id
 metric= BaseLanguageModelMetric()
-# optimizer = optim.Adam(model.parameters(), lr=0.004)
-optimizer = optim.Adam(model.parameters(), lr=0.0005)
-# optimizer = optim.Adam(model.parameters(),lr=0.1)
+optimizer = optim.Adam(model.parameters(), lr=0.004)
+
 # 新加了注释
 trainer = Trainer(model,
                   train_dataset,
                   dev_data=dev_dataset,
-                  n_epochs=300,
+                  n_epochs=100,
                   batch_size=128,
                   loss=loss,
                   optimizer=optimizer,
