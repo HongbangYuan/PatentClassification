@@ -13,8 +13,8 @@ class PatentReader(BaseReader):
     def __init__(self, raw_data_path):
         super().__init__()
         self.raw_data_path = raw_data_path
-        # self.train_file = 'train.json'
-        self.train_file = 'augmented_train.json'
+        self.train_file = 'train.json'
+        # self.train_file = 'augmented_train.json'
         # self.dev_file = 'dev.tsv'
         self.test_file = 'testA.json'
         self.train_path = os.path.join(raw_data_path, self.train_file)

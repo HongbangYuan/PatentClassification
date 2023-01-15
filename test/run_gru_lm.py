@@ -4,7 +4,7 @@ from cogtemplate.core.metric.base_lm_metric import BaseLanguageModelMetric
 import torch.nn as nn
 import torch.optim as optim
 
-cache_file = "/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/cache/processor_datas_debug.pkl"
+cache_file = "/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/cache/processor_datas.pkl"
 train_dataset, dev_dataset, test_dataset,vocab = load_pickle(cache_file)
 
 device, output_path = init_cogtemplate(
@@ -43,7 +43,7 @@ trainer = Trainer(model,
                   print_every=None,
                   scheduler_steps=None,
                   validate_steps=1,
-                  # save_by_metric="F1",
+                  save_by_metric="ppl",
                   metric_mode='min',
                   save_steps=None,
                   output_path=output_path,

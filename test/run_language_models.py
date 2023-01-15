@@ -8,11 +8,11 @@ cache_file = "/data/hongbang/projects/PatentClassification/datapath/language_mod
 train_dataset, dev_dataset, test_dataset,vocab = load_pickle(cache_file)
 
 device, output_path = init_cogtemplate(
-    device_id=6,
+    device_id=7,
     output_path="/data/hongbang/projects/PatentClassification/datapath/language_models/chinese_news/experimental_result",
     # folder_tag="run_lstm_lm",
     # folder_tag="run_transformer_lm_lr4e-3"
-    folder_tag="run_transformer_lm_lr5e-4"
+    folder_tag="debug_run_transformer_lm_lr5e-4"
     # folder_tag="debug_gru",
 )
 
@@ -53,7 +53,7 @@ trainer = Trainer(model,
                   print_every=None,
                   scheduler_steps=None,
                   validate_steps=600,
-                  # save_by_metric="F1",
+                  save_by_metric="ppl",
                   metric_mode='min',
                   save_steps=None,
                   output_path=output_path,

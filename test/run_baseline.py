@@ -8,11 +8,11 @@ from cogtemplate.data.processors.patent_processors.patent_base_processor import 
 from cogtemplate.core.predictor import Predictor
 
 device, output_path = init_cogtemplate(
-    device_id=9,
+    device_id=7,
     # seed=66, # 0.506
     seed=0,
     output_path="/data/hongbang/projects/PatentClassification/datapath/text_classification/patent/experimental_result",
-    folder_tag="simple_test",
+    folder_tag="debug",
 )
 
 reader = PatentReader(raw_data_path="/data/hongbang/projects/PatentClassification/datapath/text_classification/patent/raw_data")
